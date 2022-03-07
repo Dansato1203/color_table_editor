@@ -1,6 +1,6 @@
 CXX=g++
-CFLAGS=-std=c++17 `pkg-config --cflags opencv`
-LIBS=`pkg-config --libs opencv` -lm
+CFLAGS=-std=c++17 `pkg-config --cflags opencv4`
+LIBS=`pkg-config --libs opencv4` -lm
 
 SRCS=color_table.o convert_color.o detector_tool.o color_table_editor.o
 

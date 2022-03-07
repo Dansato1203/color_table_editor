@@ -3,6 +3,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <sstream>
 
 #include <opencv2/opencv.hpp>
 #include <opencv2/highgui/highgui.hpp>
@@ -29,14 +30,16 @@ void callBackFunc(int event_type, int x, int y, int flags, void* userdata)
 
 void visualize(cv::Mat &label_img, cv::Mat &v_img, cv::Mat &edge_img)
 {
+	/*
 	std::vector<int> field_edge(label_img.cols, label_img.rows);
 	DetectorTool::detectFieldEdge(label_img, field_edge);
 	DetectorTool::showFieldEdge(label_img, field_edge);
 	std::vector<std::pair<int, int>> edge_lines = DetectorTool::detectLineOfFieldEdge(field_edge);
 	DetectorTool::showLineOfFieldEdge(label_img, edge_lines);
 	for(auto l : edge_lines) {
-		cv::line(edge_img, cv::Point(l.first, field_edge[l.first]), cv::Point(l.second, field_edge[l.second]), cv::Scalar(0, 0, 255));
+		//cv::line(edge_img, cv::Point(l.first, field_edge[l.first]), cv::Point(l.second, field_edge[l.second]), cv::Scalar(0, 0, 255));
 	}
+	*/
 
 	const unsigned short label_green = 1 << COLOR_GREEN;
 	const unsigned short label_white = 1 << COLOR_WHITE;
@@ -80,7 +83,7 @@ void visualize(cv::Mat &label_img, cv::Mat &v_img, cv::Mat &edge_img)
 	}
 
 	cv::Mat brightness;
-	cv::cvtColor(edge_img, brightness, CV_BGR2YCrCb);
+	cv::cvtColor(edge_img, brightness, cv::COLOR_BGR2YCrCb);
 	for(int y = 1; y < edge_img.rows - 1; y++) {
 		for(int x = 0; x < edge_img.cols; x++) {
 			edge_img.data[(y * edge_img.cols + x) * 3 + 0] = (brightness.data[((y - 1) * brightness.cols + x) * 3 + 0] - brightness.data[((y + 1) * brightness.cols + x) * 3 + 0]) / 2 + 128;
@@ -89,7 +92,7 @@ void visualize(cv::Mat &label_img, cv::Mat &v_img, cv::Mat &edge_img)
 		}
 	}
 	cv::Mat tmp_img;
-	cv::cvtColor(edge_img, tmp_img, CV_YCrCb2BGR);
+	cv::cvtColor(edge_img, tmp_img, cv::COLOR_YCrCb2BGR);
 	edge_img = tmp_img;
 }
 
@@ -107,6 +110,16 @@ void loadImageFileList(std::string filename, std::vector<std::string> &list)
 			list.push_back(line);
 		}
 	}
+}
+
+std::string ExtractPathWithoutExt(const std::string &fn)
+{
+	std::string::size_type pos;
+	if((pos = fn.find_last_of(".")) == std::string::npos){
+	return fn;
+	}
+
+	return fn.substr(0, pos);
 }
 
 int main(int argc, char *argv[])
@@ -143,7 +156,7 @@ int main(int argc, char *argv[])
 	cv::Mat edge_img(img.rows, img.cols, CV_8UC3);
 	edge_img = img;
 	cv::Mat ycrcb_img;
-	cv::cvtColor(img, ycrcb_img, CV_BGR2YCrCb);
+	cv::cvtColor(img, ycrcb_img, cv::COLOR_BGR2YCrCb);
 	cv::imshow("captured image", img);
 	cv::imshow("result image", vis_img);
 	cv::imshow("edge image", edge_img);
@@ -159,6 +172,9 @@ int main(int argc, char *argv[])
 	while(true) {
 		const char pressed_key = static_cast<char>(cv::waitKey(20));
 		if(pressed_key == 'n') {
+			std::string filename = ExtractPathWithoutExt(img_names[img_index].c_str());
+			std::string label_name = filename.append("_label.png");
+			cv::imwrite(label_name, vis_img);
 			// next image
 			if(++img_index >= img_names.size())
 				img_index = 0;
@@ -166,7 +182,7 @@ int main(int argc, char *argv[])
 			edge_img = cv::imread(img_names[img_index].c_str());
 			label_img = cv::Mat(img.rows, img.cols, CV_16UC1);
 			vis_img = cv::Mat(img.rows, img.cols, CV_8UC3);
-			cv::cvtColor(img, ycrcb_img, CV_BGR2YCrCb);
+			cv::cvtColor(img, ycrcb_img, cv::COLOR_BGR2YCrCb);
 			color_table.apply(ycrcb_img, label_img);
 			visualize(label_img, vis_img, edge_img);
 			cv::imshow("captured image", img);
@@ -181,7 +197,7 @@ int main(int argc, char *argv[])
 			edge_img = cv::imread(img_names[img_index].c_str());
 			label_img = cv::Mat(img.rows, img.cols, CV_16UC1);
 			vis_img = cv::Mat(img.rows, img.cols, CV_8UC3);
-			cv::cvtColor(img, ycrcb_img, CV_BGR2YCrCb);
+			cv::cvtColor(img, ycrcb_img, cv::COLOR_BGR2YCrCb);
 			color_table.apply(ycrcb_img, label_img);
 			visualize(label_img, vis_img, edge_img);
 			cv::imshow("captured image", img);

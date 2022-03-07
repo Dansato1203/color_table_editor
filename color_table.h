@@ -2,8 +2,8 @@
 #define COLOR_TABLE_H
 
 #include <string>
-#include <opencv2/opencv.hpp>
-#include <opencv2/highgui/highgui.hpp>
+#include <opencv4/opencv2/opencv.hpp>
+#include <opencv4/opencv2/highgui/highgui.hpp>
 
 class ColorTable
 {
