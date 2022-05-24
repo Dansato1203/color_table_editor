@@ -8,9 +8,6 @@ set(src
 	color_table_editor.cpp
 	color_table.h
 	color_table.cpp
-	README.md
-	Makefile
-	Dockerfile
 	object_types.h
 	hpl_types.h
 )
